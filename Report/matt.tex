@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx}
-\title{Whale and Dolphin Identification}
+\title{Happywhale - Whale and Dolphin Identification}
 \author{Matthew Harding}
 \date{April 2024}
 
@@ -18,13 +18,13 @@ Unlike a typical classification problem in which there is a fixed set of classes
 
 \section{Training Data}
 
-\begin{figure}[h!]
+\begin{figure}
     \includegraphics[width=\linewidth]{species_histogram.png}
     \caption{Number of training images per species}
     \label{fig:species_count_histogram}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}
     \includegraphics[width=\linewidth]{mean_individuals_histogram.png}
     \caption{Mean count of images per individual by species}
     \label{fig:individual_mean_count_histogram}
@@ -34,6 +34,27 @@ Within the training data there are 51,033 labelled images. Looking at the histog
 of labelled images being for bottlenose dolphins, beluga whales, humpback whales and blue whales. For some species the number of examples it so low it will be difficult to gain a high level of accuracy within classification.
 
 Look at Figure \ref{fig:individual_mean_count_histogram}, the mean count of images per indivdual by species we see another imbalance with some species on average containing a large number of images per indivudal whilst others only contain one or two images per individual.
+
+Given these issues with the dataset combined in compute limitations, it was decided to limit the task to building a classify for bottlenose dolphins, a species for which there were a large number of labelled images and for which there 
+were on average a large number of images per individual. By doing this, the total training dataset was reduced to 9664 images across 613 individuals.
+
+\section{Image Preprocessing}
+
+The training images for the bottlenose dolphins came in a variety of sizes. Figure \ref{example_train} shows an example unprocessed image. Large amounts of each image are just of water which is irrelvant to the classification task. We are only interested in the parts of the 
+images that contain the animals.
+
+A solution to this issue was proposed within the discussions of the Kaggle competition. YoloV5 was trained on a dataset of 1200 pictures of whale flukes and the corresponding location of points on the edge of the fluke for those pictures. 
+
+https://www.kaggle.com/datasets/martinpiotte/humpback-whale-identification-fluke-location
+https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5
+
+
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{example_train.jpg}
+    \caption{Example image of a bottlenose dolphin}
+    \label{fig:example_train}
+\end{figure}
 
 
 \section{Naive Classifer}
