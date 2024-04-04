@@ -44,9 +44,15 @@ The training images for the bottlenose dolphins came in a variety of sizes. Figu
 images that contain the animals.
 
 A solution to this issue was proposed within the discussions of the Kaggle competition. YoloV5 was trained on a dataset of 1200 pictures of whale flukes and the corresponding location of points on the edge of the fluke for those pictures. 
+This was then assumed to generalise to finding the bounding box for any part of a whale or dolphin within the water. However, it is worth noting that finding the bounding box of any part of the animal is considered an Out of Distribution problem. 
+
+From this technique a cropped dataset was created with all images having a dimension of 256 x 256. 
+
 
 https://www.kaggle.com/datasets/martinpiotte/humpback-whale-identification-fluke-location
 https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5
+
+
 
 
 
