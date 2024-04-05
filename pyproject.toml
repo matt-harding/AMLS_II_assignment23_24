@@ -17,6 +17,7 @@ tqdm = "^4.66.2"
 bbox-utility = "^1.0.13"
 opencv-python = "^4.9.0.80"
 imagesize = "^1.4.1"
+scikit-learn = "^1.4.1.post1"
 
 
 [build-system]

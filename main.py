@@ -1,81 +1,15 @@
-import os
-import pandas as pd
 from PIL import Image
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
 from torch import save, load
+from sklearn.model_selection import train_test_split
+from torch.cuda.amp import autocast
 
-class WhaleDataset(Dataset):
-    def __init__(self, csv_file, image_dir, transform=None):
-        self.data = pd.read_csv(csv_file)
-        self.image_dir = image_dir
-        self.transform = transform
-        self.image_names = self.data['image'].tolist()
-        self.labels = self.data['individual_id'].tolist()
-        self.classes = self.data['individual_id'].unique()
-        self.encode = {k: i for i,k in enumerate(self.classes)}
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self,idx):
-        image_name = os.path.join(self.image_dir, self.image_names[idx])
-        image = Image.open(image_name).convert('RGB')
-        label = self.encode[self.labels[idx]]
-
-        if self.transform:
-            image = self.transform(image)
-
-        return image, label
-'''
-    Whale Classifier neural network that inherits from PyTorch base neural network class
-    Ref: https://pytorch.org/docs/stable/_modules/torch/nn/modules/module.html#Module
-'''
-class WhaleClassifier(nn.Module):
-    def __init__(self, num_classes):
-        super(WhaleClassifier, self).__init__()
-        
-        # Convolutional layers
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
-        self.relu = nn.ReLU()
-        self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
-        
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
-        
-        # Fully connected layers
-        self.fc1 = nn.Linear(128 * 64 * 64, 512)
-        self.fc2 = nn.Linear(512, num_classes)
-
-        self.embedding = nn.Embedding(num_classes, num_classes)
-        
-    def forward(self, x):
-        # Convolutional layers
-        out = self.conv1(x)
-        out = self.relu(out)
-        out = self.maxpool(out)  # out.size() = (batch_size, 32, 128, 128)
-        
-        out = self.conv2(out)
-        out = self.relu(out)
-        out = self.maxpool(out)  # out.size() = (batch_size, 64, 64, 64)
-        
-        out = self.conv3(out)
-        out = self.relu(out)     # out.size() = (batch_size, 128, 64, 64)
-        
-        # Flatten the output
-        out = out.view(out.size(0), -1)
-        
-        # Fully connected layers
-        out = self.fc1(out)
-        out = self.relu(out)
-        out = self.fc2(out)
-        
-        return out
-
+from Utils import WhaleDataset 
+from Classifiers import WhaleClassifier 
 
 if __name__ == "__main__":
     '''
@@ -90,8 +24,10 @@ if __name__ == "__main__":
     ])
 
 
-    dataset = WhaleDataset(csv_file='train.csv', image_dir='Datasets/train_images', transform=transform)
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+    dataset = WhaleDataset(csv_file='Datasets/train.csv', image_dir='Datasets/train_images', transform=transform)
+    train_data, test_data = train_test_split(dataset, test_size=0.95, random_state=42)
+    train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
 
     num_classes = dataset.data['individual_id'].nunique()
     model = WhaleClassifier(num_classes)
@@ -103,8 +39,11 @@ if __name__ == "__main__":
     model.to(device)
 
     for epoch in range(num_epochs):
-        running_loss = 0.0
-        for inputs, labels in dataloader:
+        train_loss = 0.0
+        batch = 1
+
+        for inputs, labels in train_loader:
+            print(f"Batch {batch} of {len(train_loader)}")
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -112,10 +51,30 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
-            running_loss += loss.item()
+            train_loss += loss.item()
+            batch += 1
 
-        epoch_loss = running_loss / len(dataloader)
-        print(f'Epoch: {epoch+1}, Loss: {epoch_loss:.4f}')
+        train_loss /= len(train_loader)
+        print(f'Epoch: {epoch+1}, Train Loss: {train_loss:.4f}')
 
     with open('model_state.pt', 'wb') as f:
         save(model.state_dict(), f)
+
+    model.eval()
+    test_loss = 0.0
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            test_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    test_loss /= len(test_loader)
+    test_accuracy = 100 * correct / total
+    print(f'Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%')

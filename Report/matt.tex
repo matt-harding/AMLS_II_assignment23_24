@@ -62,8 +62,17 @@ https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5
     \label{fig:example_train}
 \end{figure}
 
+\section{Measuring Model Performance}
 
-\section{Naive Classifer}
+Performance of the model was measured via the Mean Average Precision @ 5 (MAP@5). Instead of using just accuracy as a measure, MAP@5 was used to account of the complexity of the
+classification task. Accuracy only considers whether the top predicted class is correct or not. It does not take into account the ranking of predictions. MAP@5, on the other hand, considers the ranking of predictions within the top 5 predicted classes. It rewards models that rank the correct classes higher in the prediction list.
+
+
+
+
+\section{Model Training}
+
+Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker.
 
 The first approach taken was to classify images
 
