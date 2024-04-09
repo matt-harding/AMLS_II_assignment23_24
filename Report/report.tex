@@ -127,7 +127,9 @@ The final fully connected layer applies a linear transformation, mapping the 512
 
 The Adam optimizer, a robust gradient-based optimization method. Adam allows for faster convergence, compared to stochastic gradient descent, by adapting the learing rate during training \cite{kingma2017adam}
 
-Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker using a ml.p3.8xlarge instance 
+
+
+Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker using a ml.p3.8xlarge GPU instance.
 
 
 \section{Conclusions}
