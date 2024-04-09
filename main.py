@@ -10,14 +10,18 @@ from torch.cuda.amp import autocast
 from Utils import WhaleDataset 
 from Classifiers import WhaleClassifier 
 
+BATCH_SIZE = 32
+LEARNING_RATE = 0.01
+EPOCHS = 2
+
 if __name__ == "__main__":
     # Load data
-    dataset = WhaleDataset(csv_file='Datasets/train.csv', image_dir='Datasets/train_images')
+    dataset = WhaleDataset(csv_file='train.csv', image_dir='train_images')
 
     # Split data in train and test
     train_data, test_data = train_test_split(dataset, test_size=0.2, random_state=42)
-    train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
 
     # For this assessment we only consider inviduals within the training dataset
     # This line would need to be modified to consider out of distribution
@@ -26,25 +30,18 @@ if __name__ == "__main__":
     # Instantiate Image Classifier
     model = WhaleClassifier(num_classes)
 
-    # Why are we using Cross Entropy?
-
-    # Can we switch this out to 
     criterion = nn.CrossEntropyLoss()
-
-    # Why are we using ADAM?
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
-
-    num_epochs = 1
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
 
-    for epoch in range(num_epochs):
+    '''
+        TRAIN CLASSIFIER
+    '''
+    for epoch in range(EPOCHS):
         train_loss = 0.0
-        batch = 1
 
         for inputs, labels in train_loader:
-            #Remove logging before submitting
-            print(f"Batch {batch} of {len(train_loader)}")
             inputs, labels = inputs.to(device), labels.to(device)
             # Add brief description
             optimizer.zero_grad()
@@ -56,7 +53,6 @@ if __name__ == "__main__":
             optimizer.step()
 
             train_loss += loss.item()
-            batch += 1
 
         train_loss /= len(train_loader)
         print(f'Epoch: {epoch+1}, Train Loss: {train_loss:.4f}')
@@ -66,13 +62,15 @@ if __name__ == "__main__":
         save(model.state_dict(), f)
 
 
-    # Break out testing into seperate file?
+    '''
+        TEST CLASSIFIER
+    '''
     model.eval()
     test_loss = 0.0
     correct = 0
     total = 0
 
-    #Need to ecxplain this login in more detail
+    # Need to explain this login in more detail
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)

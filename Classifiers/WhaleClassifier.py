@@ -21,8 +21,6 @@ class WhaleClassifier(nn.Module):
         self.fc1 = nn.Linear(128 * 64 * 64, 512)
         self.fc2 = nn.Linear(512, num_classes)
 
-        # Is this needed if we're not doing inference?
-        self.embedding = nn.Embedding(num_classes, num_classes)
         
     def forward(self, x):
         # Convolutional layers

@@ -16,7 +16,7 @@
 This project explores the problem of classifiying images of dolphin and whales to identify indivduals. This work 
 is based on the \emph{Happywhale - Whale and Dolphin Identification} Kaggle competition \cite{kaggle_comp}.
 
-Data for this competition contains images of over 15,000 unique individual marine mammals from 30 different species collected from 28 different research organizations. 
+Data for this competition contains over 50,000 images of over 15,000 unique individual marine mammals from 30 different species collected from 28 different research organizations. 
 Individuals have been manually identified and given an individual\_id by marine researchers.
 
 Unlike a typical classification problem in which there is a fixed set of classes which examples of all classes within the training data, this problem required the ability to classify individuals not contained within the training dataset.
@@ -89,32 +89,50 @@ $$MAP@5 = \frac{1}{U} \sum_{u=1}^{U} \sum_{k=1}^{\min(n,5)} P(k) \times \text{re
     \item \verb|U| is the number of images 
     \item \verb|P(k)| is the precision at cutoff \verb|k|
     \item \verb|n| is an indicator function equaling 1 if the item at rank \verb|k| is the correct label, zero otherwise
-  \end{itemize}
+\end{itemize}
 
 
 \section{Network Architecture}
 
-As this was an image classification task, a network architecture based around Convolutional layers seemed logical.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{cnn.png}
+    \caption{Example of a CNN}
+    \label{fig:network_architecture}
+\end{figure}
+
+A convolutional network architecture was selected for this problem. Three convolutional layers were selected for the network architecture so that increasingly more complex and 
+abstract features could be extracted from the input image.
+
+\begin{itemize}
+    \item \verb|conv1|  takes the input image with 3 color channels (RGB) and applies 32 different 3x3 convolutional filters to extract low-level features like edges, corners, and simple patterns
+    \item \verb|conv2| takes the output of the previous layer (32 feature maps) and applies 64 different 3x3 convolutional filters to detect slightly more complex patterns and features.
+    \item \verb|conv3| takes the output of the previous layer (64 feature maps) and applies 128 different 3x3 convolutional filters to detect even more complex patterns and higher-level features that are useful for distinguishing between different classes.
+\end{itemize}
+
+After each convolutional layer, a ReLI activation function is applied to introduce non-linearity to the network
+
 
 The first layer was a 2D Convultional layer. This layer takes the input image with 3 channels (RBG) and applies 32 different 3x3 convolutional filters to
 extract low-level features like edges, corners and simple patterns. The stride of 1 ensures that the filters are applied to every pixel, and the 
-padding of 1 preserves the spatial dimen 
+padding of 1 preserves the spatial dimensionality. 
 
-Next, a ReLU activation function was run to add non-linearity to the model (????)
+Next, a ReLU activation function was run to add non-linearity to the model followed by a pooling layer that downsamples the feature maps.
 
-Finally a pooling layer was added.
+After the convolutional layers, there are two fully connected layers. The first fully connected layer takes the flattened output of the convolutional layers and applies a linear transformation, mapping to a fixed-sized vector of 512. his layer acts as a non-linear feature extractor, learning a higher-level representation of the convolutional features. A ReLU activation function is applied after this layer to introduce non-linearity.
+The final fully connected layer applies a linear transformation, mapping the 512-dimensional vector to a vector of size equal to tthe number of unique individual\_ids in the training data.
 
-MATT - Why do we then do two additional convolutional layers?
-Look at forward method, we reuse relu and maxpool
-
-MATT - Is fully connected 2 considered a SOFTMAX? 
 
 \section{Model Training}
 
-Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker.
+The Adam optimizer, a robust gradient-based optimization method. Adam allows for faster convergence, compared to stochastic gradient descent, by adapting the learing rate during training \cite{kingma2017adam}
+
+Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker using a ml.p3.8xlarge instance 
 
 
 \section{Conclusions}
+
+It has been shown that a 
 
 \bibliographystyle{plain}
 \bibliography{references}
