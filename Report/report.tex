@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{natbib}
+\usepackage{url}
 \usepackage{amsmath}
 \usepackage{tabularx}
 \usepackage{graphicx}
@@ -131,7 +132,7 @@ Dropout was added to the classifer architecture with a dropout rate of 0.2. Agai
 
 A forth convolutional layer was then added to the network structure under the assumption a deeper network could capture more patterns within the images but also did not yield performance improvements. 
 
-\begin{figure}[ht]
+\begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{train_loss.png}
     \caption{Training loss}
@@ -157,9 +158,6 @@ A forth convolutional layer was then added to the network structure under the as
 10 & 0.01 & 16 & 10.0023 & 0.86\% & Added Dropout \\
 \hline
 10 & 0.01 & 16 & 10.0001 & 0.86\% & Additional Conv2d layer \\
-
-
-
 \hline
 \end{tabularx}
 \caption{Test Loss and Accuracy with different hyperparameter configurations}
