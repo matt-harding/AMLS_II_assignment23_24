@@ -12,7 +12,7 @@ from Classifiers import WhaleClassifier
 
 if __name__ == "__main__":
     # Load data
-    dataset = WhaleDataset(csv_file='Datasets/train.csv', image_dir='Datasets/train_images', transform=transform)
+    dataset = WhaleDataset(csv_file='Datasets/train.csv', image_dir='Datasets/train_images')
 
     # Split data in train and test
     train_data, test_data = train_test_split(dataset, test_size=0.2, random_state=42)
