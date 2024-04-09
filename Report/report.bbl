@@ -4,6 +4,10 @@
 Happywhale: Cropped data prepare yolov5.
 \newblock Website.
 
+\bibitem{cross_entropy_loss}
+Pytorch cross entropy loss.
+\newblock Website.
+
 \bibitem{kaggle_comp}
 Happywhale - whale and dolphin identification.
 \newblock Website.
@@ -11,6 +15,10 @@ Happywhale - whale and dolphin identification.
 \bibitem{kingma2017adam}
 Diederik~P. Kingma and Jimmy Ba.
 \newblock Adam: A method for stochastic optimization, 2017.
+
+\bibitem{smith2018dont}
+Samuel~L. Smith, Pieter-Jan Kindermans, Chris Ying, and Quoc~V. Le.
+\newblock Don't decay the learning rate, increase the batch size, 2018.
 
 \bibitem{whale_fluke_dataset}
 Whale fluke location labelled dataset.

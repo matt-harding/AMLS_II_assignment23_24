@@ -12,7 +12,7 @@ from Classifiers import WhaleClassifier
 
 BATCH_SIZE = 32
 LEARNING_RATE = 0.01
-EPOCHS = 2
+EPOCHS = 10
 
 if __name__ == "__main__":
     # Load data
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     correct = 0
     total = 0
 
-    # Need to explain this login in more detail
+    # No Grad context manager used as no longer updating model parameters
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)

@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{natbib}
 \usepackage{amsmath}
+\usepackage{tabularx}
 \usepackage{graphicx}
 \graphicspath{ {./images/} } 
 
@@ -12,14 +13,14 @@
 
 \maketitle
 
-\section{Introduction}
-This project explores the problem of classifiying images of dolphin and whales to identify indivduals. This work 
+\section{Abstract}
+This project explores the problem of classifiying images of dolphins and whales to identify indivduals. This work 
 is based on the \emph{Happywhale - Whale and Dolphin Identification} Kaggle competition \cite{kaggle_comp}.
 
 Data for this competition contains over 50,000 images of over 15,000 unique individual marine mammals from 30 different species collected from 28 different research organizations. 
 Individuals have been manually identified and given an individual\_id by marine researchers.
 
-Unlike a typical classification problem in which there is a fixed set of classes which examples of all classes within the training data, this problem required the ability to classify individuals not contained within the training dataset.
+The Kaggle competion had the additional complexity of requiring the ability to classify individuals not included in the training dataset. It was decided to ommit this requirement due to time limitations. The Kaggle competion also measured model performance via Mean Average Precision @ 5 but for this task it was replaced with Accuracy.
 
 \section{Training Data}
 
@@ -38,7 +39,7 @@ Unlike a typical classification problem in which there is a fixed set of classes
 \end{figure}
 
 Looking at the histogram of species Figure \ref{fig:species_count_histogram}, there is a clear inbalance in the number of images per species with the vast majority
-of labelled images being for bottlenose dolphins, beluga whales, humpback whales and blue whales. For some species the number of examples it so low it will be difficult to gain a high level of accuracy within classification.
+of labelled images being for bottlenose dolphins, beluga whales, humpback whales and blue whales. For some species the number of examples it so low it will be difficult to gain a high level of accuracy.
 
 Figure \ref{fig:individual_mean_count_histogram} shows the mean count of images per indivdual by species where we see another imbalance with some species on average containing a large number of images per indivudal whilst others only contain one or two images per individual.
 
@@ -73,23 +74,9 @@ and dolphin classifier.
 A custom PyTorch dataset class called \emph{WhaleDataset} was created for loading in the training images. One-hot encoding was used for the image lables, representing the individual ids provided.
 
 The images were converted to RGB format as this was the compatible format for PyTorch. The images were then transformed using the TorchVision transforms package. The images were already all the same dimension from the preprocessing outlined in the previous section. 
-The transformation involved convertsing the PIL image to a PyTorch tensor, scaling ther pixel values to the range [0,1] followed by normalizing the tensor by subtracting the mean and dividing by the standard deviation.
+The transformation involved converting the PIL image to a PyTorch tensor, scaling ther pixel values to the range [0,1] followed by normalizing the tensor by subtracting the mean and dividing by the standard deviation.
 
-Scikit Learn's \emph{train\_test\_split} was used to split of 80/20 was used. A random state was specified for reproducability between training runs. Shuffling was enabled on the test set.
-
-\section{Measuring Model Performance}
-
-Performance of the model was measured via the Mean Average Precision @ 5 (MAP@5). Instead of using just accuracy as a measure, MAP@5 was used to account of the complexity of the
-classification task. Accuracy only considers whether the top predicted class is correct or not. It does not take into account the ranking of predictions. 
-MAP@5, on the other hand, considers the ranking of predictions within the top 5 predicted classes. It rewards models that rank the correct classes higher in the prediction list.
-
-$$MAP@5 = \frac{1}{U} \sum_{u=1}^{U} \sum_{k=1}^{\min(n,5)} P(k) \times \text{rel}(k)$$
-
-\begin{itemize}
-    \item \verb|U| is the number of images 
-    \item \verb|P(k)| is the precision at cutoff \verb|k|
-    \item \verb|n| is an indicator function equaling 1 if the item at rank \verb|k| is the correct label, zero otherwise
-\end{itemize}
+Scikit Learn's \emph{train\_test\_split} was used to divide the data into training and test datasets using an 80/20 split. A random state was specified for reproducability between training runs. Shuffling was enabled on the test set.
 
 
 \section{Network Architecture}
@@ -110,31 +97,94 @@ abstract features could be extracted from the input image.
     \item \verb|conv3| takes the output of the previous layer (64 feature maps) and applies 128 different 3x3 convolutional filters to detect even more complex patterns and higher-level features that are useful for distinguishing between different classes.
 \end{itemize}
 
-After each convolutional layer, a ReLI activation function is applied to introduce non-linearity to the network
+After each convolutional layer, a ReLU activation function is applied to introduce non-linearity to the network
 
-
-The first layer was a 2D Convultional layer. This layer takes the input image with 3 channels (RBG) and applies 32 different 3x3 convolutional filters to
-extract low-level features like edges, corners and simple patterns. The stride of 1 ensures that the filters are applied to every pixel, and the 
-padding of 1 preserves the spatial dimensionality. 
-
-Next, a ReLU activation function was run to add non-linearity to the model followed by a pooling layer that downsamples the feature maps.
-
-After the convolutional layers, there are two fully connected layers. The first fully connected layer takes the flattened output of the convolutional layers and applies a linear transformation, mapping to a fixed-sized vector of 512. his layer acts as a non-linear feature extractor, learning a higher-level representation of the convolutional features. A ReLU activation function is applied after this layer to introduce non-linearity.
+After the convolutional layers, there are two fully connected layers. The first fully connected layer takes the flattened output of the convolutional layers and applies a linear transformation, mapping to a fixed-sized vector of 512. This layer acts as a non-linear feature extractor, learning a higher-level representation of the convolutional features. A ReLU activation function is applied after this layer to introduce non-linearity.
 The final fully connected layer applies a linear transformation, mapping the 512-dimensional vector to a vector of size equal to tthe number of unique individual\_ids in the training data.
 
 
 \section{Model Training}
 
-The Adam optimizer, a robust gradient-based optimization method. Adam allows for faster convergence, compared to stochastic gradient descent, by adapting the learing rate during training \cite{kingma2017adam}
+The Adam optimizer, a robust gradient-based optimization method, was chosen. Adam allows for faster convergence, compared to stochastic gradient descent, by adapting the learing rate during training \cite{kingma2017adam}
+
+The PyTorch \emph{CrossEntropyLoss} criterion \cite{cross_entropy_loss} was used this was a multi-class classification problem. This criterion first applies a Softmax function on the logits, converting them into a propability distribution over the classes. Then the cross-entropy loss measures the performance of the model by comparing the predicted probability distribution with the true distribution (represented by the one-hot encoded target labels). It calculates the negative log-likelihood of the true class probabilities, penalizing the model more for being confident about the wrong predictions.
+
+Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine were still prohibitively long. Therefore, training was done using AWS Sagemaker using a ml.p3.8xlarge GPU instance.
+
+The hyperparameters under consideration were
+
+\begin{itemize}
+    \item \verb|Epochs|: Number of complete passes of the training dataset through the network
+    \item \verb|Learning Rate|: The size of the step taken adjusting the model parameters during the optimization stage
+    \item \verb|Batch Size|: The number of training examples passed through the network before backpropagation and optimization
+\end{itemize}
+
+An intial training run using a batch size of 32, a learning rate of 0.01 and training for 5 epochs gave a test accuracy of 0.87\%. Given the number of classes, this translates to the model predicting correctly 8 or 9 out of 1000 samples.
+Increasing the learning rate had no impact on performance whilst reducing the learning rate reduced the performance. A smaller learning rate should lead to a higher accuracy \cite{smith2018dont} so this may be due to underfitting where the model parameters doesn't receive sufficient updates.
+
+
+Reducing batch size made no material difference to performance. Smaller batch-size reduces the risk of overfitting however the model may already be well-regularized.
+
+Training for additional epochs lead to a small improvement in accuracy. However, looking at Figure \ref{fig:training_loss}, the training loss was beginning to converge beyond the 5th epoch so continued training risked overfitting.
+
+Dropout was added to the classifer architecture with a dropout rate of 0.2. Again this made no difference to performance so again overfitting is not the cause of poor performance.
+
+A forth convolutional layer was then added to the network structure under the assumption a deeper network could capture more patterns within the images but also did not yield performance improvements. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{train_loss.png}
+    \caption{Training loss}
+    \label{fig:training_loss}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
+\hline
+\textbf{Epochs} & \textbf{Learning Rate} & \textbf{Batch Size} & \textbf{Loss} & \textbf{Accuracy} & \textbf{Notes} \\
+\hline
+5 & 0.01 & 32 & 10.6497 & 0.87\% & \\
+\hline
+5 & 0.1 & 32 & 10.7591 & 0.87\% &  \\
+\hline
+5 & 0.001 & 32 & 17.1580 & 0.72\% & \\
+\hline
+5 & 0.01 & 16 & 10.6052 & 0.87\% & \\
+\hline
+10 & 0.01 & 16 & 10.3002 & 0.86\% & \\
+\hline
+10 & 0.01 & 16 & 10.0023 & 0.86\% & Added Dropout \\
+\hline
+10 & 0.01 & 16 & 10.0001 & 0.86\% & Additional Conv2d layer \\
 
 
 
-Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker using a ml.p3.8xlarge GPU instance.
-
+\hline
+\end{tabularx}
+\caption{Test Loss and Accuracy with different hyperparameter configurations}
+\label{tab:example}
+\end{table}
 
 \section{Conclusions}
 
-It has been shown that a 
+Performance achived by the model can be considered poor. This can be attributed to several factors
+
+\begin{itemize}
+    \item Differences between individuals with a species are very slight and can change over time
+    \item Large class inbalance in the number of examples per species and per individual
+    \item Computational limitations meant each model could only be trained for a few epochs
+\end{itemize}
+
+With additional time and computational resources, it is beleived performance gains could be made by first creating a model to classifiying the image for 
+species before passing on species specific classifier that could then classify for the individual. The assumption being that a species specific model would
+be easier to train to capture the nuances of each individual.
+
+
+Additionally, it would be of interest to see if performance improvements could be made via contrast enhancement as an image preprocessing step. The animals were 
+similar colors to the ocean so something that could emphasis the shape of the animal could assist the model.
+
+
 
 \bibliographystyle{plain}
 \bibliography{references}
