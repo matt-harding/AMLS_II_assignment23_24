@@ -1,15 +1,20 @@
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{natbib}
+
 \title{Happywhale - Whale and Dolphin Identification}
 \author{Matthew Harding}
 \date{April 2024}
 
 \begin{document}
+
 \maketitle
 
 \section{Introduction}
 This project explores the problem of classifiying images of dolphin and whales to identify indivduals. This work 
 is based on the \emph{Happywhale - Whale and Dolphin Identification} Kaggle competition.\par
+
+\cite{article_key}
 
 Data for this competition contains images of over 15,000 unique individual marine mammals from 30 different species collected from 28 different research organizations. 
 Individuals have been manually identified and given an individual\_id by marine researches.\par
@@ -35,12 +40,11 @@ of labelled images being for bottlenose dolphins, beluga whales, humpback whales
 
 Look at Figure \ref{fig:individual_mean_count_histogram}, the mean count of images per indivdual by species we see another imbalance with some species on average containing a large number of images per indivudal whilst others only contain one or two images per individual.
 
-Given these issues with the dataset combined in compute limitations, it was decided to limit the task to building a classify for bottlenose dolphins, a species for which there were a large number of labelled images and for which there 
-were on average a large number of images per individual. By doing this, the total training dataset was reduced to 9664 images across 613 individuals.
+Need to talk about performance if dataset was limited to just bottlenose dolphins
 
 \section{Image Preprocessing}
 
-The training images for the bottlenose dolphins came in a variety of sizes. Figure \ref{example_train} shows an example unprocessed image. Large amounts of each image are just of water which is irrelvant to the classification task. We are only interested in the parts of the 
+The training images for the bottlenose dolphins came in a variety of sizes. Figure \ref{fig:example_train} shows an example unprocessed image. Large amounts of each image are just of water which is irrelvant to the classification task. We are only interested in the parts of the 
 images that contain the animals.
 
 A solution to this issue was proposed within the discussions of the Kaggle competition. YoloV5 was trained on a dataset of 1200 pictures of whale flukes and the corresponding location of points on the edge of the fluke for those pictures. 
@@ -48,13 +52,15 @@ This was then assumed to generalise to finding the bounding box for any part of 
 
 From this technique a cropped dataset was created with all images having a dimension of 256 x 256. 
 
-
 https://www.kaggle.com/datasets/martinpiotte/humpback-whale-identification-fluke-location
 https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5
 
 
+MATT - Need to talk about the transformation logic. Why do we convert to tensor and then normalize?
 
+A train/test split of 80/20 was used (need to reference this decision). 
 
+What is random state, why 42?
 
 \begin{figure}
     \includegraphics[width=\linewidth]{example_train.jpg}
@@ -65,15 +71,36 @@ https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5
 \section{Measuring Model Performance}
 
 Performance of the model was measured via the Mean Average Precision @ 5 (MAP@5). Instead of using just accuracy as a measure, MAP@5 was used to account of the complexity of the
-classification task. Accuracy only considers whether the top predicted class is correct or not. It does not take into account the ranking of predictions. MAP@5, on the other hand, considers the ranking of predictions within the top 5 predicted classes. It rewards models that rank the correct classes higher in the prediction list.
+classification task. Accuracy only considers whether the top predicted class is correct or not. It does not take into account the ranking of predictions. 
+MAP@5, on the other hand, considers the ranking of predictions within the top 5 predicted classes. It rewards models that rank the correct classes higher in the prediction list.
 
+\section{Network Architecture}
 
+As this was an image classification task, a network architecture based around Convolutional layers seemed logical.
 
+The first layer was a 2D Convultional layer. This layer takes the input image with 3 channels (RBG) and applies 32 different 3x3 convolutional filters to
+extract low-level features like edges, corners and simple patterns. The stride of 1 ensures that the filters are applied to every pixel, and the 
+padding of 1 preserves the spatial dimen 
+
+Next, a ReLU activation function was run to add non-linearity to the model (????)
+
+Finally a pooling layer was added.
+
+MATT - Why do we then do two additional convolutional layers?
+Look at forward method, we reuse relu and maxpool
+
+MATT - Is fully connected 2 considered a SOFTMAX? 
 
 \section{Model Training}
 
 Despite the massive reduction in file size that came from using the cropped dataset instead of the original dataset, training times on the local machine was still prohibitively long. Therefore, training was done using AWS Sagemaker.
 
-The first approach taken was to classify images
+
+\section{Conclusions}
+
+
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}

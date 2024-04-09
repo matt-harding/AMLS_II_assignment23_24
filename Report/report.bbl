@@ -1,0 +1,8 @@
+\begin{thebibliography}{1}
+
+\bibitem{article_key}
+A.~N. Author.
+\newblock Hello world.
+\newblock {\em Journal Name}, 5(2):123--456, 2022.
+
+\end{thebibliography}

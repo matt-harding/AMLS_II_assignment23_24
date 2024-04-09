@@ -29,9 +29,18 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
 
+    # For this assessment we only considfer inviduals within the training dataset
+    # This line would need to be modified to consider out of 
     num_classes = dataset.data['individual_id'].nunique()
+
     model = WhaleClassifier(num_classes)
+
+    # Why are we using Cross Entropy?
+
+    # Can we switch this out to 
     criterion = nn.CrossEntropyLoss()
+
+    # Why are we using ADAM?
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
     num_epochs = 1
@@ -43,11 +52,15 @@ if __name__ == "__main__":
         batch = 1
 
         for inputs, labels in train_loader:
+            #Remove logging before submitting
             print(f"Batch {batch} of {len(train_loader)}")
             inputs, labels = inputs.to(device), labels.to(device)
+            # Add brief description
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+
+            # Description on torch backprop implementation
             loss.backward()
             optimizer.step()
 
@@ -57,14 +70,18 @@ if __name__ == "__main__":
         train_loss /= len(train_loader)
         print(f'Epoch: {epoch+1}, Train Loss: {train_loss:.4f}')
 
+    # Need a dynamic model name linked to env file used
     with open('model_state.pt', 'wb') as f:
         save(model.state_dict(), f)
 
+
+    # Break out testing into seperate file?
     model.eval()
     test_loss = 0.0
     correct = 0
     total = 0
 
+    #Need to ecxplain this login in more detail
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)
