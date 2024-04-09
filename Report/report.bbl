@@ -1,8 +1,15 @@
 \begin{thebibliography}{1}
 
-\bibitem{article_key}
-A.~N. Author.
-\newblock Hello world.
-\newblock {\em Journal Name}, 5(2):123--456, 2022.
+\bibitem{cropped_dataset_kaggle}
+Happywhale: Cropped data prepare yolov5.
+\newblock Website.
+
+\bibitem{kaggle_comp}
+Happywhale - whale and dolphin identification.
+\newblock Website.
+
+\bibitem{whale_fluke_dataset}
+Whale fluke location labelled dataset.
+\newblock Website.
 
 \end{thebibliography}
