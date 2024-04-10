@@ -2,7 +2,8 @@
 
 \bibitem{cropped_dataset_kaggle}
 Happywhale: Cropped data prepare yolov5.
-\newblock \url{https://www.kaggle.com/competitions/happy-whale-and-dolphin}.
+\newblock
+  \url{https://www.kaggle.com/code/awsaf49/happywhale-cropped-data-prepare-yolov5}.
 
 \bibitem{cross_entropy_loss}
 Pytorch cross entropy loss.
