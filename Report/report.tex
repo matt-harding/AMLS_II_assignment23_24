@@ -3,11 +3,12 @@
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{tabularx}
+\usepackage{hyperref}
 \usepackage{graphicx}
 \graphicspath{ {./images/} } 
 
 \title{Happywhale - Whale and Dolphin Identification}
-\author{Matthew Harding}
+\author{Matthew Harding [Student ID - MHARD94]}
 \date{April 2024}
 
 \begin{document}
@@ -18,6 +19,8 @@
 A convolutional neural network was created to classify images for individuals from numerous species of whales and dolphins. However, poor performance was achieved in the classification task.
 It was found that adjustments to epochs, learning rate, batchsize and network architecture lead to little performance gain. It was hypothesised that for this task, fixes to class imbalance and additional image preprocessing would 
 be required in improve model performance.
+
+The code for this project can be found \href{https://github.com/matt-harding/AMLS_II_assignment23_24}{here}.
 
 \section{Introduction}
 This project explores the problem of classifiying images of dolphins and whales to identify indivduals. This work 
@@ -90,6 +93,13 @@ Scikit Learn's \emph{train\_test\_split} was used to divide the data into traini
 A convolutional network architecture similar to Figure \ref{fig:network_architecture}  was selected for this problem. Three convolutional layers were selected for the network architecture so that increasingly more complex and 
 abstract features could be extracted from the input image.
 
+
+\begin{itemize}
+    \item \verb|conv1|  takes the input image with 3 color channels (RGB) and applies 32 different 3x3 convolutional filters to extract low-level features like edges, corners, and simple patterns
+    \item \verb|conv2| takes the output of the previous layer (32 feature maps) and applies 64 different 3x3 convolutional filters to detect slightly more complex patterns and features.
+    \item \verb|conv3| takes the output of the previous layer (64 feature maps) and applies 128 different 3x3 convolutional filters to detect even more complex patterns and higher-level features that are useful for distinguishing between different classes.
+\end{itemize}
+
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{cnn.png}
@@ -97,11 +107,6 @@ abstract features could be extracted from the input image.
     \label{fig:network_architecture}
 \end{figure}
 
-\begin{itemize}
-    \item \verb|conv1|  takes the input image with 3 color channels (RGB) and applies 32 different 3x3 convolutional filters to extract low-level features like edges, corners, and simple patterns
-    \item \verb|conv2| takes the output of the previous layer (32 feature maps) and applies 64 different 3x3 convolutional filters to detect slightly more complex patterns and features.
-    \item \verb|conv3| takes the output of the previous layer (64 feature maps) and applies 128 different 3x3 convolutional filters to detect even more complex patterns and higher-level features that are useful for distinguishing between different classes.
-\end{itemize}
 
 
 After each convolutional layer, a ReLU activation function is applied to introduce non-linearity to the network
