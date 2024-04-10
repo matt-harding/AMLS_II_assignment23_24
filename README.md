@@ -30,7 +30,7 @@ The cropped dataset is too large to check in source control. The full dataset wi
 
 ## Run Locally 
 
-Poetry was for dependency management
+Poetry was for dependency management. Build using Python 3.10. Not tested on other versions of Python.
 
 ``` poetry shell ```
 
