@@ -22,7 +22,7 @@ The project is broken up into six folders
 
 **main.py** is the entry point to run the training and testing of the classifier. 
 
-The cropped dataset is too large to check in. A small subset of images will be included with this repo. The full dataset can be downloaded from
+The cropped dataset is too large to check in source control. The full dataset will need to be downloaded from
 
 ```https://www.kaggle.com/awsaf49/happywhale-data-distribution```
 
